@@ -1,0 +1,27 @@
+<html>
+
+<head>
+  <title>Express</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div id='search-container'>
+        <form name='search-query-form'>
+          <input id='searchbar' type='text' placeholder='Enter search query' />
+          <ul id='algorithm-selector'>
+              <li id='lucene-container' class='algorithm-container'>
+                  <input id='lucene' type='radio' name='algorithm' value='lucene' />
+                  <label for='lucene'>Lucene</label>
+              </li>
+              <li id='pagerank-container' class='algorithm-container'>
+                  <input id='pagerank' type='radio' name='algorithm' value='pagerank'>
+                  <label for='pagerank'>PageRank</label>
+              </li>
+          </ul>
+          <input id='submit-btn' type='submit' value='Submit' />
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+{
+  "success": {
+    "statusCode": 200,
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "abcd.html",
+          "title": "test",
+          "url": "www.test.com",
+          "description": "test description"
+        }
+      ]
+    }
+  },
+  "failure": [
+    {      
+      "statusCode": 200,
+      "body": {
+        "status": "ok",
+        "data": [
+          {
+            "id": "id",
+            "title": "title",
+            "url": null,
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "statusCode": 500,
+      "body": {
+        "status": "not_ok",
+        "data": {
+          "error": "some error message"
+        }
+      }
+    }
+  ]
+}
