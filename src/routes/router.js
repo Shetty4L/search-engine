@@ -21,19 +21,7 @@ module.exports = {
     const solrQuery = client.query().q(query);
     try {
       const result = await client.search(solrQuery);
-      const responseObj = result.response.docs.map(doc => {
-        const title = utils.isValidQuery(doc.title) ? doc.title : 'N/A';
-        const url = utils.isValidQuery(doc.og_url) ? doc.og_url : 'N/A';
-        const id = utils.isValidQuery(doc.id) ? doc.id : 'N/A';
-        const description = utils.isValidQuery(doc.og_description) ? doc.og_description : 'N/A';
-        const object = {
-          title: title,
-          url: url,
-          id: id,
-          description: description
-        };
-        return object;
-      });
+      const responseObj = await utils.processSolrResults(result.response.docs);
       res.status(200).send(responseObj);
     } catch(err) {
       res.status(500).send({
