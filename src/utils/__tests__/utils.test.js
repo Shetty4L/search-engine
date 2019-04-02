@@ -17,15 +17,20 @@ describe('helper functions', () => {
 
   describe('process Solr results', () => {
     const docs = [{
-      "id": "id",
-      "title": "title",
-      "url": null,
-      "description": null
+      'id': '08a33d9b-af5c-4e9c-8d25-0942007a00d0.html',
+      'title': 'title',
+      'url': null,
+      'description': null
     }];
-    
-    it('returns a description of N/A if no description is present', () => {
-      const modifiedDocs = utils.processSolrResults(docs);
-      expect(modifiedDocs.description).toEqual('N/A');
+
+    it('returns a description of N/A if no description is present', async () => {
+      const modifiedDocs = await utils.processSolrResults(docs);
+      expect(modifiedDocs[0].description).toEqual('N/A');
+    });
+
+    it('returns the correct url from the mapping if no url is present', async () => {
+      const modifiedDocs = await utils.processSolrResults(docs);
+      expect(modifiedDocs[0].url).toEqual('https://www.theguardian.com/us');
     });
   });
 })
