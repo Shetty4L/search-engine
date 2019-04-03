@@ -1,27 +1,43 @@
 <html>
 
 <head>
-  <title>Express</title>
-  <link rel="stylesheet" href="/stylesheets/style.css">
+  <title>CSCI572 - HW4 | Suyash Shetty </title>
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous"
+  >
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div id='search-container'>
-        <form name='search-query-form'>
-          <input id='searchbar' type='text' placeholder='Enter search query' />
-          <ul id='algorithm-selector'>
-              <li id='lucene-container' class='algorithm-container'>
-                  <input id='lucene' type='radio' name='algorithm' value='lucene' />
-                  <label for='lucene'>Lucene</label>
-              </li>
-              <li id='pagerank-container' class='algorithm-container'>
-                  <input id='pagerank' type='radio' name='algorithm' value='pagerank'>
-                  <label for='pagerank'>PageRank</label>
-              </li>
-          </ul>
-          <input id='submit-btn' type='submit' value='Submit' />
+    <div id='search-container' class='container col-md-6'>
+        <form name='searchQueryForm'>
+            <div class='form-group'>
+                <input id='searchbar' class='form-control' type='text' placeholder='Enter search query' required />
+                <ul id='algorithm-selector' class='d-flex justify-content-center'>
+                    <li id='lucene-container' class='algorithm-container form-check form-check-inline'>
+                        <input id='lucene' type='radio' name='algorithmRadios' value='lucene' class='form-check-input' checked />
+                        <label for='lucene' class='form-check-label'>Lucene</label>
+                    </li>
+                    <li id='pagerank-container' class='algorithm-container form-check form-check-inline'>
+                        <input id='pagerank' type='radio' name='algorithmRadios' value='pagerank' class='form-check-input'>
+                        <label for='pagerank' class='form-check-label'>PageRank</label>
+                    </li>
+                </ul>
+                <div class='d-flex justify-content-center'>
+                    <input id='submit-btn' class='btn btn-primary col-md-4' type='submit' value='Submit' disabled />
+                </div>
+            </div>
         </form>
     </div>
+    <div class='row justify-content-center'>
+        <div id='news-results' class='col-md-8 list-group'>
+            <!-- News articles populated by Javascript -->
+        </div>
+    </div>
+    <script src='js/script.js'></script>
 </body>
 
 </html>
