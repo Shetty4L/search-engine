@@ -28,16 +28,16 @@ exports.processSolrResults = async (docs) => {
   return docs.map(doc => {
     const last = (arr) => arr[arr.length-1];
 
-    const title = this.isValidQuery(doc.title) ? doc.title : 'N/A';
-    const url = this.isValidQuery(doc.og_url) ? doc.og_url : urlMap[last(doc.id.split('/'))];
-    const description = this.isValidQuery(doc.og_description) ? doc.og_description : 'N/A';
-    const id = this.isValidQuery(doc.id) ? doc.id : 'N/A';
+    const title = this.isValidQuery(doc.title) ? doc.title : ['N/A'];
+    const url = this.isValidQuery(doc.og_url) ? doc.og_url : [urlMap[last(doc.id.split('/'))]];
+    const description = this.isValidQuery(doc.og_description) ? doc.og_description : ['N/A'];
+    const id = this.isValidQuery(doc.id) ? [doc.id] : ['N/A'];
 
     return {
-      title: title,
-      url: url,
-      id: id,
-      description: description
+      title: title[0],
+      url: url[0],
+      id: id[0],
+      description: description[0]
     }
   })
 }
