@@ -1,4 +1,4 @@
-body {
+/* body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -26,4 +26,13 @@ input#submit-btn {
     -webkit-appearance: none;
     height: 30px;
     width: 250px;
+} */
+
+div#search-container {
+    padding-top: 50px;
+}
+
+ul#algorithm-selector {
+    padding-left: 0;
+    margin-top: 15px;
 }
