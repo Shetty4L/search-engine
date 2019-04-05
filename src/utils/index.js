@@ -31,7 +31,7 @@ exports.processSolrResults = async (docs) => {
     const title = this.isValidQuery(doc.title) ? doc.title : ['N/A'];
     const url = this.isValidQuery(doc.og_url) ? doc.og_url : [urlMap[last(doc.id.split('/'))]];
     const description = this.isValidQuery(doc.og_description) ? doc.og_description : ['N/A'];
-    const id = this.isValidQuery(doc.id) ? [doc.id] : ['N/A'];
+    const id = this.isValidQuery(doc.id) ? [last(doc.id.split('/'))] : ['N/A'];
 
     return {
       title: title[0],
