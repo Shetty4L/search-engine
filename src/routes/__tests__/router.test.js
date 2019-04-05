@@ -2,11 +2,12 @@ const sinon = require('sinon');
 const request = require('request-promise-native');
 const mockResponses = require('./fixtures.json')
 
-const makeRequest = async (query) => {
+const makeRequest = async (query, algorithm = 'lucene') => {
   const options = {
     uri: 'http://localhost:3000/search',
     qs: {
-      q: query
+      q: query,
+      algorithm: algorithm
     },
     resolveWithFullResponse: true
   };
@@ -26,6 +27,26 @@ describe('search route', () => {
       res = null;
     });
 
+    it('throws error if request does not contain query and algorithm', async () => {
+      const options = {
+        uri: 'http://localhost:3000/search',
+        qs: {
+          q: 'search query'
+        },
+        resolveWithFullResponse: true
+      };
+
+      try {
+        res = await request.get(options);
+      } catch(err) {
+        res = err;
+      }
+      expect(res.statusCode).toEqual(400);
+      expect(JSON.parse(res.error)).toEqual({
+        error: '2 query parameters are required'
+      });
+    });
+
     it('should return a status code of 400 for invalid query', async () => {
       try {
         res = await makeRequest(null);
@@ -43,9 +64,11 @@ describe('search route', () => {
     it('returns the correct response object if query term is invalid', async () => {
       try {
         res = await makeRequest(undefined);
-      } catch(err) {}
-      expect(JSON.parse(res.response.body)).toEqual({
-        error: 'Search term is not valid'
+      } catch(err) {
+        res = err;
+      }
+      expect(JSON.parse(res.error)).toEqual({
+        error: '2 query parameters are required'
       });
     });
 

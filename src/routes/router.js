@@ -8,17 +8,19 @@ const client = new solrNode({
 
 module.exports = {
   search: async (req, res) => {
-    let query = req.query.q;
-    if(!utils.isValidQuery(query)) {
+    if(Object.keys(req.query).length!==2 || !utils.isValidQuery(req.query.q)) {
       res.status(400).send({
-        error: 'Search term is not valid'
+        error: '2 query parameters are required'
       });
       return;
     }
 
+    let query = req.query.q;
+    const algorithm = req.query.algorithm;
+
     query = utils.sanitizeSearchQuery(query);
 
-    const solrQuery = client.query().q(query);
+    let solrQuery = `q=${query}&sort=${utils.getSolrSortQueryValue(algorithm)}`;
     try {
       const result = await client.search(solrQuery);
       const responseObj = await utils.processSolrResults(result.response.docs);
