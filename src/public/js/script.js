@@ -45,11 +45,21 @@ function getSelectedAlgorithm() {
 
 function createNewsArticle(doc) {
   let newsArticleComponentString =
-  `<a href="${doc.url}" target="_blank" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">${doc.title}</h5>
-    </div>
-    <p class="mb-1">${doc.description}</p>
-  </a>`;
+  `
+  <div class="list-group-item flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+        <a href="${doc.url}" target="_blank"><h5 class="mb-1">${doc.title}</h5></a>
+      </div>
+      <div class="row">
+          <div class="col-12">
+              <a href="${doc.url}" target="_blank"><small>${doc.url}</small></a>
+          </div>
+          <div class="col-12">
+              ID: <small class="text-muted">${doc.id}</small>
+          </div>
+      </div>
+      <p class="lead">${doc.description}</p>
+  </div>
+  `;
   return newsArticleComponentString;
 }
