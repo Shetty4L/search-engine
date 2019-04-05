@@ -15,6 +15,19 @@ describe('helper functions', () => {
     expect(utils.sanitizeSearchQuery(q)).toEqual('test query');
   });
 
+  describe('returns the correct sort query string value', () => {
+    let alg;
+    it('for lucene', () => {
+      alg = 'lucene';
+      expect(utils.getSolrSortQueryValue(alg)).toEqual('score desc');
+    });
+
+    it('for pagerank', () => {
+      alg = 'pagerank';
+      expect(utils.getSolrSortQueryValue(alg)).toEqual('pagerank desc');
+    });
+  })
+
   describe('process Solr results', () => {
     const docs = [{
       id: '08a33d9b-af5c-4e9c-8d25-0942007a00d0.html',

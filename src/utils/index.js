@@ -40,4 +40,8 @@ exports.processSolrResults = async (docs) => {
       description: description[0]
     }
   })
+};
+
+exports.getSolrSortQueryValue = (algorithm) => {
+  return ((algorithm==='lucene') ? 'score desc' : 'pagerank desc');
 }
