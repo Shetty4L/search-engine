@@ -5,7 +5,8 @@
   "scripts": {
     "start": "../solr-8.0.0/bin/solr start && nodemon node ./bin/www",
     "test": "./node_modules/.bin/jest src --watch",
-    "coverage": "./node_modules/.bin/jest --collectCoverageFrom=src/**.js --coverage src"
+    "coverage": "./node_modules/.bin/jest --collectCoverageFrom=src/**.js --coverage src",
+    "serve:dist": "./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
