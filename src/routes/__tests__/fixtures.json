@@ -1,20 +1,17 @@
 {
   "success": {
     "statusCode": 200,
-    "body": {
-      "status": "ok",
-      "data": [
-        {
-          "id": "abcd.html",
-          "title": "test",
-          "url": "www.test.com",
-          "description": "test description"
-        }
-      ]
-    }
+    "body": [
+      {
+        "id": "abcd.html",
+        "title": "test",
+        "url": "www.test.com",
+        "description": "test description"
+      }
+    ]
   },
   "failure": [
-    {      
+    {
       "statusCode": 200,
       "body": {
         "status": "ok",
@@ -35,6 +32,12 @@
         "data": {
           "error": "some error message"
         }
+      }
+    },
+    {
+      "statusCode": 400,
+      "error": {
+        "error": "2 query parameters are required"
       }
     }
   ]
