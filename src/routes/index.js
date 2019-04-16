@@ -10,4 +10,7 @@ app.get('/', (req, res) => {
 // Route for retrieving search results
 app.get('/search', router.search);
 
+// Route for autocomplete
+app.get('/suggest', router.suggest);
+
 module.exports = app;

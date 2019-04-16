@@ -2,25 +2,24 @@ const sinon = require('sinon');
 const request = require('request-promise-native');
 const mockResponses = require('./fixtures.json')
 
-const makeRequest = async (query, algorithm = 'lucene') => {
-  const options = {
-    uri: 'http://localhost:3000/search',
-    qs: {
-      q: query,
-      algorithm: algorithm
-    },
-    resolveWithFullResponse: true
-  };
-  try {
-    const response = await request.get(options);
-    return response;
-  } catch(err) {
-    return err;
-  }
-};
-
 describe('search route', () => {
-  /*
+  const makeRequest = async (query, algorithm = 'lucene') => {
+    const options = {
+      uri: 'http://localhost:3000/search',
+      qs: {
+        q: query,
+        algorithm: algorithm
+      },
+      resolveWithFullResponse: true
+    };
+    try {
+      const response = await request.get(options);
+      return response;
+    } catch(err) {
+      return err;
+    }
+  };
+
   describe('not stubbed', () => {
     let res = null;
 
@@ -42,17 +41,17 @@ describe('search route', () => {
       } catch(err) {
         res = err;
       }
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(404);
       expect(JSON.parse(res.error)).toEqual({
         error: '2 query parameters are required'
       });
     });
 
-    it('should return a status code of 400 for invalid query', async () => {
+    it('should return a status code of 404 for invalid query', async () => {
       try {
         res = await makeRequest(null);
       } catch(err) {}
-      expect(res.statusCode).toEqual(400);
+      expect(res.statusCode).toEqual(404);
     });
 
     it('should return status code of 200 for valid query', async () => {
@@ -90,7 +89,6 @@ describe('search route', () => {
       expect(JSON.parse(res.body)[0]).toHaveProperty('description');
     });
   });
-  */
 
   describe('when stubbed', () => {
     beforeEach(() => {
@@ -191,3 +189,49 @@ describe('search route', () => {
     });
   });
 });
+
+describe('suggest route', () => {
+  const makeRequest = async (query) => {
+    const options = {
+      uri: 'http://localhost:3000/suggest',
+      qs: {
+        q: query
+      },
+      resolveWithFullResponse: true
+    };
+    try {
+      const response = await request.get(options);
+      return response;
+    } catch(err) {
+      return err;
+    }
+  };
+
+  describe('when not stubbed', () => {
+    let res = null;
+
+    afterEach(() => {
+      res = null;
+    });
+
+    it('should return a status code of 404 for invalid query', async () => {
+      try {
+        res = await makeRequest(null);
+      } catch(err) {}
+      expect(res.statusCode).toEqual(404);
+    });
+
+    it('returns a list of suggestions for an input query', async () => {
+      try {
+        res = await makeRequest('calif');
+      } catch(err) {}
+
+      expect(res.statusCode).toEqual(200);
+      expect(JSON.parse(res.body)).toHaveProperty('suggestions');
+      expect(JSON.parse(res.body).suggestions).toHaveLength(5);
+      expect(JSON.parse(res.body).suggestions).toEqual([
+        'calif', 'california', 'california’s', 'cliff', 'clifford'
+      ]);
+    });
+  })
+})
