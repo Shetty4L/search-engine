@@ -6,7 +6,8 @@
         "id": "abcd.html",
         "title": "test",
         "url": "www.test.com",
-        "description": "test description"
+        "description": "test description",
+        "snippet": "sample snippet"
       }
     ]
   },
