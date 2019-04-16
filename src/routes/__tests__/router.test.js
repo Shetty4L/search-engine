@@ -27,6 +27,8 @@ describe('search route', () => {
       res = null;
     });
 
+    jest.setTimeout(10000);
+
     it('throws error if request does not contain query and algorithm', async () => {
       const options = {
         uri: 'http://localhost:3000/search',
@@ -87,6 +89,7 @@ describe('search route', () => {
       expect(JSON.parse(res.body)[0]).toHaveProperty('url');
       expect(JSON.parse(res.body)[0]).toHaveProperty('title');
       expect(JSON.parse(res.body)[0]).toHaveProperty('description');
+      expect(JSON.parse(res.body)[0]).toHaveProperty('snippet');
     });
   });
 

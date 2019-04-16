@@ -17,7 +17,7 @@ module.exports = {
     const solrQuery = `q=${query}&sort=${utils.getSolrSortQueryValue(algorithm)}`;
     try {
       const result = await utils.querySolr('select', solrQuery);
-      const responseObj = await utils.processSolrSearchResults(result.response.docs);
+      let responseObj = await utils.processSolrSearchResults(result.response.docs, query);
       res.status(200).send(responseObj);
     } catch(err) {
       res.status(500).send({
