@@ -37,7 +37,7 @@ describe('helper functions', () => {
     }];
     let modifiedDocs;
     beforeEach(async () => {
-      modifiedDocs = await utils.processSolrResults(docs);
+      modifiedDocs = await utils.processSolrSearchResults(docs);
     });
 
     it('returns a description of N/A if no description is present', () => {
@@ -46,6 +46,18 @@ describe('helper functions', () => {
 
     it('returns the correct url from the mapping if no url is present', () => {
       expect(modifiedDocs[0].url).toEqual('https://www.theguardian.com/us');
+    });
+  });
+
+  describe('spell checker', () => {
+    it('takes a wrongly spelt word and returns the correct word 1', () => {
+      const wrongWord = 'speling';
+      expect(utils.correctSpelling(wrongWord)).toEqual('spelling');
+    });
+
+    it('takes a wrongly spelt word and returns the correct word 2', () => {
+      const wrongWord = 'clmat';
+      expect(utils.correctSpelling(wrongWord)).toEqual('climate');
     });
   });
 })
