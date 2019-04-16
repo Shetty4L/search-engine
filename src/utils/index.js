@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const request = require('request-promise-native');
 const h2p = require('html2plaintext');
+const cheerio = require('cheerio');
 const nWords = require('./spell_model.json');
 const client = {
   host: 'localhost',
@@ -31,6 +32,15 @@ exports.getJSONFromCSVFile = async (fname) => {
   });
 };
 
+exports.getTextFromUrl = async (fname) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path.resolve(__dirname, fname), (err, data) => {
+      if (err) throw reject(err);
+      resolve(h2p(cheerio.load(data).html()));
+    });
+  });
+}
+
 exports.querySolr = async (route, query) => {
   const url = `http://${client.host}:${client.port}/solr/${client.core}/${route}?${query}`;
   try {
@@ -41,9 +51,10 @@ exports.querySolr = async (route, query) => {
   }
 };
 
-exports.processSolrSearchResults = async (docs) => {
+exports.processSolrSearchResults = async (docs, query) => {
   const urlMap = await this.getJSONFromCSVFile('url_mapping.csv');
-  return docs.map(doc => {
+  let urlTextMap = {};
+  return Promise.all(docs.map(async (doc) => {
     const last = (arr) => arr[arr.length-1];
 
     const title = this.isValidQuery(doc.title) ? doc.title : ['N/A'];
@@ -51,13 +62,20 @@ exports.processSolrSearchResults = async (docs) => {
     const description = this.isValidQuery(doc.og_description) ? doc.og_description : ['N/A'];
     const id = this.isValidQuery(doc.id) ? [last(doc.id.split('/'))] : ['N/A'];
 
+    let text;
+    if(urlTextMap.hasOwnProperty(url[0])) {
+      text = urlTextMap[url[0]];
+    } else text = await this.getTextFromUrl(`./data/${id[0]}`);
+    const snippet = this.generateSnippet(text, query);
+
     return {
       title: title[0],
       url: url[0],
       id: id[0],
-      description: description[0]
+      description: description[0],
+      snippet: snippet
     }
-  })
+  }));
 };
 
 exports.getSolrSortQueryValue = (algorithm) => {
@@ -115,15 +133,6 @@ const max = (candidates) => {
     }
   }
 	return Math.max.apply(null, arr);
-}
-
-exports.getTextFromUrl = async (url) => {
-  try {
-    const result = await request.get(url);
-    return h2p(result);
-  } catch(err) {
-    return null;
-  }
 }
 
 exports.generateSnippet = (text, query) => {

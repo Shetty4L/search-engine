@@ -17,7 +17,7 @@ describe('helper functions', () => {
   });
 
   it('takes a url and returns the text content', async () => {
-    const url = 'https://www.theguardian.com/us-news/live/2019/jan/30/trump-politics-venezuela-congress-shutdown-latest-news-updates';
+    const url = './data/abff2f3b-4739-4082-9dc1-97c67af48caa.html';
     let text = '';
     try {
       text = await utils.getTextFromUrl(url);
@@ -47,7 +47,7 @@ describe('helper functions', () => {
     }];
     let modifiedDocs;
     beforeEach(async () => {
-      modifiedDocs = await utils.processSolrSearchResults(docs);
+      modifiedDocs = await utils.processSolrSearchResults(docs, 'test');
     });
 
     it('returns a description of N/A if no description is present', () => {
