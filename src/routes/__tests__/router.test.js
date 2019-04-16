@@ -27,70 +27,79 @@ describe('search route', () => {
       res = null;
     });
 
-    jest.setTimeout(10000);
+    describe('error', () => {
+      it('throws error if request does not contain query and algorithm', async () => {
+        const options = {
+          uri: 'http://localhost:3000/search',
+          qs: {
+            q: 'search query'
+          },
+          resolveWithFullResponse: true
+        };
 
-    it('throws error if request does not contain query and algorithm', async () => {
-      const options = {
-        uri: 'http://localhost:3000/search',
-        qs: {
-          q: 'search query'
-        },
-        resolveWithFullResponse: true
-      };
-
-      try {
-        res = await request.get(options);
-      } catch(err) {
-        res = err;
-      }
-      expect(res.statusCode).toEqual(404);
-      expect(JSON.parse(res.error)).toEqual({
-        error: '2 query parameters are required'
+        try {
+          res = await request.get(options);
+        } catch(err) {
+          res = err;
+        }
+        expect(res.statusCode).toEqual(404);
+        expect(JSON.parse(res.error)).toEqual({
+          error: '2 query parameters are required'
+        });
       });
-    });
 
-    it('should return a status code of 404 for invalid query', async () => {
-      try {
-        res = await makeRequest(null);
-      } catch(err) {}
-      expect(res.statusCode).toEqual(404);
-    });
-
-    it('should return status code of 200 for valid query', async () => {
-      try {
-        res = await makeRequest('test');
-      } catch(err) {}
-      expect(res.statusCode).toEqual(200);
-    });
-
-    it('returns the correct response object if query term is invalid', async () => {
-      try {
-        res = await makeRequest(undefined);
-      } catch(err) {
-        res = err;
-      }
-      expect(JSON.parse(res.error)).toEqual({
-        error: '2 query parameters are required'
+      it('should return a status code of 404 for invalid query', async () => {
+        try {
+          res = await makeRequest(null);
+        } catch(err) {}
+        expect(res.statusCode).toEqual(404);
       });
-    });
 
-    it('returns an array of document objects if query is successful', async () => {
-      try {
-        res = await makeRequest('test query');
-      } catch(err) {}
-      expect(JSON.parse(res.body).length).toBeGreaterThan(0);
-    });
+      it('returns the correct response object if query term is invalid', async () => {
+        try {
+          res = await makeRequest(undefined);
+        } catch(err) {
+          res = err;
+        }
+        expect(JSON.parse(res.error)).toEqual({
+          error: '2 query parameters are required'
+        });
+      });
+    })
 
-    it('returns the correct document objects', async () => {
-      try {
-        res = await makeRequest('test');
-      } catch(err) {}
-      expect(JSON.parse(res.body)[0]).toHaveProperty('id');
-      expect(JSON.parse(res.body)[0]).toHaveProperty('url');
-      expect(JSON.parse(res.body)[0]).toHaveProperty('title');
-      expect(JSON.parse(res.body)[0]).toHaveProperty('description');
-      expect(JSON.parse(res.body)[0]).toHaveProperty('snippet');
-    });
+    // // --------------------------------- //
+    // describe('success', () => {
+    //   // ---------------------- //
+    //   jest.setTimeout(10000);
+    //   // ---------------------- //
+    //
+    //   it('should return status code of 200 for valid query', async () => {
+    //     try {
+    //       res = await makeRequest('test');
+    //     } catch(err) {}
+    //     expect(res.statusCode).toEqual(200);
+    //   });
+    //
+    //   it('returns an array of document objects if query is successful', async () => {
+    //     try {
+    //       res = await makeRequest('test query');
+    //     } catch(err) {}
+    //     expect(JSON.parse(res.body).length).toBeGreaterThan(0);
+    //   });
+    //
+    //   it('returns the correct document objects', async () => {
+    //     try {
+    //       res = await makeRequest('test');
+    //     } catch(err) {}
+    //     expect(JSON.parse(res.body)[0]).toHaveProperty('id');
+    //     expect(JSON.parse(res.body)[0]).toHaveProperty('url');
+    //     expect(JSON.parse(res.body)[0]).toHaveProperty('title');
+    //     expect(JSON.parse(res.body)[0]).toHaveProperty('description');
+    //     expect(JSON.parse(res.body)[0]).toHaveProperty('snippet');
+    //   });
+    // });
+    // // --------------------------------- //
+    
   });
 
   describe('when stubbed', () => {
@@ -171,6 +180,7 @@ describe('search route', () => {
       expect(res.body[0]).toHaveProperty('url');
       expect(res.body[0]).toHaveProperty('title');
       expect(res.body[0]).toHaveProperty('description');
+      expect(res.body[0]).toHaveProperty('snippet');
     });
 
     // ---------------------------------------------------------------- //
