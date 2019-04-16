@@ -2,6 +2,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const request = require('request-promise-native');
+const h2p = require('html2plaintext');
 const nWords = require('./spell_model.json');
 const client = {
   host: 'localhost',
@@ -114,4 +115,58 @@ const max = (candidates) => {
     }
   }
 	return Math.max.apply(null, arr);
+}
+
+exports.getTextFromUrl = async (url) => {
+  try {
+    const result = await request.get(url);
+    return h2p(result);
+  } catch(err) {
+    return null;
+  }
+}
+
+exports.generateSnippet = (text, query) => {
+  const processExtractedString = (results, query) => {
+    for(let result of results) {
+      result = result.split(/[.?|]/).filter(phrase => phrase.toLowerCase().indexOf(query)!==-1);
+      if(result!==undefined & result.length>0) {
+        result = result[0].split(/\s\s+/).filter(phrase => phrase.toLowerCase().indexOf(query)!==-1);
+        result = result[0].replace(/[0-9]{2}[a|p]m [A-Z]{3} [0-9]{2}:[0-9]{2}/g, '').trim();
+        return (
+          result.length > 160 ? result.substring(0,160).trim() + ' ...' : result
+        );
+      }
+    }
+    return '';
+  }
+
+  const queryTerms = query.split(' ');
+  const sentences = text.match(/[^.?!]+[.!?]+[\])'"`’”]*/g);
+
+  if(queryTerms.length===1) {
+    const result = sentences.filter(sentence => sentence.toLowerCase().indexOf(query)!==-1);
+    return processExtractedString(result, query);
+  } else {
+    const result1 = sentences.filter(sentence => sentence.toLowerCase().indexOf(query)!==-1);
+    if(result1!==undefined && result1.length>0) {
+      return processExtractedString(result1, query);
+    }
+
+    const result2 = sentences.filter(sentence => {
+      return queryTerms.every(term => sentence.toLowerCase().indexOf(term)!==-1)
+    });
+    if(result2!==undefined && result2.length>0) {
+      return processExtractedString(result2, queryTerms[0]);
+    }
+
+    const result3 = sentences.filter(sentence => {
+      return queryTerms.some(term => sentence.toLowerCase().indexOf(term)!==-1)
+    });
+    if(result3!==undefined && result3.length>0) {
+      return processExtractedString(result3, queryTerms[0]);
+    }
+
+    return '';
+  }
 }

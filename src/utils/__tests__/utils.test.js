@@ -1,4 +1,5 @@
 const utils = require('../index.js');
+const webpage = require('./webpage.json');
 
 describe('helper functions', () => {
   it('checks if query is valid', () => {
@@ -13,6 +14,15 @@ describe('helper functions', () => {
   it('converts query to lower case', () => {
     const q = 'TEST QUERY';
     expect(utils.sanitizeSearchQuery(q)).toEqual('test query');
+  });
+
+  it('takes a url and returns the text content', async () => {
+    const url = 'https://www.theguardian.com/us-news/live/2019/jan/30/trump-politics-venezuela-congress-shutdown-latest-news-updates';
+    let text = '';
+    try {
+      text = await utils.getTextFromUrl(url);
+    } catch(err) {}
+    expect(text).toContain('Republicans and Democrats meet to avoid new government shutdown – as it happened');
   });
 
   describe('returns the correct sort query string value', () => {
@@ -58,6 +68,55 @@ describe('helper functions', () => {
     it('takes a wrongly spelt word and returns the correct word 2', () => {
       const wrongWord = 'clmat';
       expect(utils.correctSpelling(wrongWord)).toEqual('climate');
+    });
+  });
+
+  describe('snippet extaction', () => {
+    it('takes an html page and a single query term and returns a snippet', async () => {
+      const query = 'venezuela';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('Trump tells Americans not to travel to Venezuela');
+    });
+
+    it('takes an html page with a sentence containing all query terms and returns a snippet',
+      async () => {
+      const query = 'klausner took her sweet revenge';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('Today, Klausner took her sweet revenge on the Republican and staunch abortion opponent by raising thousands of dollars for Planned Parenthood');
+    });
+
+    it('takes an html page with a sentence containing all query terms but not in the same order and returns a snippet 1',
+      async () => {
+      const query = 'klausner sweet revenge';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('Today, Klausner took her sweet revenge on the Republican and staunch abortion opponent by raising thousands of dollars for Planned Parenthood');
+    });
+
+    it('takes an html page with a sentence containing all query terms but not in the same order and returns a snippet 2',
+      async () => {
+      const query = 'klausner trolls twitter fun';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('Klausner clearly had fun with the trolls, of which there were many, because, you know, Twitter');
+    });
+
+    it('takes an html page with a sentence containing some query terms and returns a snippet',
+      async () => {
+      const query = 'john kasich venezuela';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('Earlier this month, former Ohio Governor John Kasich refused to sit in a “less desirable seat” and instead took comedian Julie Klausner’s seat on a flight from ...');
+    });
+
+    it('takes an html page with a sentence containing no query terms and returns a snippet',
+      async () => {
+      const query = 'ronald reagan';
+      const text = webpage.text;
+      const snippet = utils.generateSnippet(text, query);
+      expect(snippet).toEqual('');
     });
   });
 })
