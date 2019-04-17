@@ -59,7 +59,7 @@ exports.processSolrSearchResults = async (docs, query) => {
 
     const title = this.isValidQuery(doc.title) ? doc.title : ['N/A'];
     const url = this.isValidQuery(doc.og_url) ? doc.og_url : [urlMap[last(doc.id.split('/'))]];
-    const description = this.isValidQuery(doc.og_description) ? doc.og_description : ['N/A'];
+    const description = this.isValidQuery(doc.og_description) ? doc.og_description : [''];
     const id = this.isValidQuery(doc.id) ? [last(doc.id.split('/'))] : ['N/A'];
 
     let text;
@@ -73,7 +73,7 @@ exports.processSolrSearchResults = async (docs, query) => {
       url: url[0],
       id: id[0],
       description: description[0],
-      snippet: snippet
+      snippet: (snippet.length>0 ? snippet : description)
     }
   }));
 };
@@ -85,11 +85,11 @@ exports.getSolrSortQueryValue = (algorithm) => {
 exports.correctSpelling = (word) => {
   if (nWords.hasOwnProperty(word)) return word;
 	let candidates = {}, list = edits(word);
-	list.forEach(function (edit) {
+	list.forEach((edit) => {
 		if (nWords.hasOwnProperty(edit)) candidates[nWords[edit]] = edit;
 	});
 	if (countKeys(candidates) > 0) return candidates[max(candidates)];
-	list.forEach(function (edit) {
+	list.forEach((edit) => {
 		edits(edit).forEach(function (w) {
 			if (nWords.hasOwnProperty(w)) candidates[nWords[w]] = w;
 		});

@@ -50,8 +50,8 @@ describe('helper functions', () => {
       modifiedDocs = await utils.processSolrSearchResults(docs, 'test');
     });
 
-    it('returns a description of N/A if no description is present', () => {
-      expect(modifiedDocs[0].description).toEqual('N/A');
+    it('returns an empty description if no description is present', () => {
+      expect(modifiedDocs[0].description).toEqual('');
     });
 
     it('returns the correct url from the mapping if no url is present', () => {
