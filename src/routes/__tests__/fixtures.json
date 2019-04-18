@@ -1,16 +1,34 @@
 {
-  "success": {
-    "statusCode": 200,
-    "body": [
-      {
-        "id": "abcd.html",
-        "title": "test",
-        "url": "www.test.com",
-        "description": "test description",
-        "snippet": "sample snippet"
+  "success": [
+    {
+      "statusCode": 200,
+      "body": {
+        "original_query": "test",
+        "corrected_query": "test",
+        "docs": [{
+          "id": "abcd.html",
+          "title": "test",
+          "url": "www.test.com",
+          "description": "test description",
+          "snippet": "sample snippet"
+        }]
       }
-    ]
-  },
+    },
+    {
+      "statusCode": 200,
+      "body": {
+        "original_query": "donlad trunp",
+        "corrected_query": "donald trump",
+        "docs": [{
+          "id": "abcd.html",
+          "title": "test",
+          "url": "www.test.com",
+          "description": "test description",
+          "snippet": "sample snippet"
+        }]
+      }
+    }
+  ],
   "failure": [
     {
       "statusCode": 200,
