@@ -9,15 +9,20 @@ module.exports = {
       return;
     }
 
-    let query = req.query.q;
+    const query = utils.sanitizeSearchQuery(req.query.q);
+    const correctedQuery = query.split(' ').map(term => utils.correctSpelling(term)).join(' ');
     const algorithm = req.query.algorithm;
 
-    query = utils.sanitizeSearchQuery(query);
-
-    const solrQuery = `q=${query}&sort=${utils.getSolrSortQueryValue(algorithm)}`;
+    const solrQuery = `q=${correctedQuery}&sort=${utils.getSolrSortQueryValue(algorithm)}`;
     try {
       const result = await utils.querySolr('select', solrQuery);
-      let responseObj = await utils.processSolrSearchResults(result.response.docs, query);
+      const docs = await utils.processSolrSearchResults(result.response.docs, query);
+
+      const responseObj = {
+        original_query: query,
+        corrected_query: correctedQuery,
+        docs: docs
+      };
       res.status(200).send(responseObj);
     } catch(err) {
       res.status(500).send({
