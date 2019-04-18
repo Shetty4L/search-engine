@@ -60,6 +60,11 @@ describe('helper functions', () => {
   });
 
   describe('spell checker', () => {
+    it('takes a correctly spelt word and returns it', () => {
+      const word = 'donald';
+      expect(utils.correctSpelling(word)).toEqual('donald');
+    });
+
     it('takes a wrongly spelt word and returns the correct word 1', () => {
       const wrongWord = 'speling';
       expect(utils.correctSpelling(wrongWord)).toEqual('spelling');
@@ -68,6 +73,11 @@ describe('helper functions', () => {
     it('takes a wrongly spelt word and returns the correct word 2', () => {
       const wrongWord = 'clmat';
       expect(utils.correctSpelling(wrongWord)).toEqual('climate');
+    });
+
+    it('takes a wrongly spelt word and returns the correct word 2', () => {
+      const wrongWord = 'chnge';
+      expect(utils.correctSpelling(wrongWord)).toEqual('change');
     });
   });
 
