@@ -3,19 +3,20 @@
 <head>
   <title>CSCI572 - HW4 | Suyash Shetty </title>
   <link
-    rel="stylesheet"
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-    crossorigin="anonymous"
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+  crossorigin="anonymous"
   >
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../../css/style.css">
 </head>
 
 <body>
     <div id='search-container' class='container col-md-6'>
-        <form name='searchQueryForm'>
+        <form name='searchQueryForm' autocomplete='off'>
             <div class='form-group'>
                 <input id='searchbar' class='form-control' type='text' placeholder='Enter search query' required />
+                <ul id='autocomplete-list' class='list-group'></ul>
                 <ul id='algorithm-selector' class='d-flex justify-content-center'>
                     <li id='lucene-container' class='algorithm-container form-check form-check-inline'>
                         <input id='lucene' type='radio' name='algorithmRadios' value='lucene' class='form-check-input' checked />
@@ -27,12 +28,18 @@
                     </li>
                 </ul>
                 <div class='d-flex justify-content-center'>
-                    <input id='submit-btn' class='btn btn-primary col-md-4' type='submit' value='Submit' disabled />
+                    <button id='submit-btn' class='btn btn-primary col-md-4' type='submit' disabled>
+                        <div>
+                            <span class="spinner-border spinner-grow-sm" role="status" aria-hidden="true"></span>
+                            <span>Submit</span>
+                        </div>
+                    </button>
                 </div>
             </div>
         </form>
     </div>
     <div id='news-results-container' class='row justify-content-center'>
+        <div id='spell-check-div' class='col-md-10'></div>
         <div id='news-results' class='col-md-10 list-group'>
             <!-- News articles populated by Javascript -->
         </div>
@@ -42,7 +49,7 @@
             <span class='text-muted'>Property of Suyash Shetty©</span>
         </div>
     </footer>
-    <script src='js/script.js'></script>
+    <script src='../../js/script.js'></script>
 </body>
 
 </html>

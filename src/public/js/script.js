@@ -1,12 +1,32 @@
-document.getElementById('searchbar').addEventListener('change', () => {
+document.getElementById('searchbar').addEventListener('input', async (event) => {
   const submitBtn = document.getElementById('submit-btn');
-  const searchQuery = document.getElementById('searchbar').value;
+  const searchQuery = event.target.value;
   if(searchQuery!==null && searchQuery!==undefined && searchQuery.length>0) {
     submitBtn.disabled = false;
   } else {
     submitBtn.disabled = true;
   }
-})
+  const prefix = (arr) => arr.slice(0, arr.length-1).join(' ');
+  const last = (arr) => arr[arr.length-1];
+  const queryTerms = searchQuery.split(' ');
+  const lastQueryTerm = last(queryTerms);
+
+  if(lastQueryTerm!==undefined && lastQueryTerm.length>0) {
+    const response = await fetch(`/suggest?q=${lastQueryTerm}`);
+    const results = await response.json();
+    const suggestions = results.suggestions;
+    let suggestionsHTML = '';
+    suggestions && suggestions.forEach(suggestion => {
+      suggestionsHTML += createSuggestionItem(suggestion, prefix(queryTerms));
+    });
+    let autocomplete = document.getElementById('autocomplete-list');
+    autocomplete.innerHTML = suggestionsHTML;
+  }
+});
+
+document.body.addEventListener('click', () => {
+  document.getElementById('autocomplete-list').innerHTML = '';
+});
 
 let prev = document.getElementById('lucene');
 document.forms.searchQueryForm.addEventListener('change', (event) => {
@@ -19,19 +39,15 @@ document.forms.searchQueryForm.addEventListener('change', (event) => {
 
 document.forms.searchQueryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  let searchQuery = document.getElementById('searchbar').value;
-  if(searchQuery!==null && searchQuery!==undefined && searchQuery.length>0) {
-    searchQuery = searchQuery.toLowerCase();
+  const query = document.getElementById('searchbar').value;
+  fetchNewsResults(query);
+});
 
-    const response = await fetch(`/search?q=${searchQuery}&algorithm=${getSelectedAlgorithm()}`);
-    const results = await response.json();
-
-    let newsArticlesList = document.getElementById('news-results');
-    let newsArticleListInnerHTML = '';
-    results.map(doc => {
-      newsArticleListInnerHTML += createNewsArticle(doc);
-    });
-    newsArticlesList.innerHTML = newsArticleListInnerHTML;
+document.addEventListener('click', (element) => {
+  if (element.target.className.indexOf('suggestion-item')!==-1) {
+    const searchQuery = element.target.innerHTML.trim();
+    document.getElementById('searchbar').value = searchQuery;
+    document.getElementById('autocomplete-list').innerHTML = '';
   }
 });
 
@@ -62,4 +78,57 @@ function createNewsArticle(doc) {
   </div>
   `;
   return newsArticleComponentString;
+}
+
+function createSuggestionItem(suggestion, prefix) {
+  let suggestionItem =
+  `
+    <a class='suggestion-item list-group-item list-group-item-action'>
+      ${prefix} ${suggestion}
+    </a>
+  `;
+  return suggestionItem;
+}
+
+async function fetchNewsResults(searchQuery) {
+  if(searchQuery!==null && searchQuery!==undefined && searchQuery.length>0) {
+    searchQuery = searchQuery.toLowerCase();
+
+    let spinner = document.getElementsByClassName('spinner-border')[0];
+
+    spinner.style.visibility = 'visible';
+    const response = await fetch(`/search?q=${searchQuery}&algorithm=${getSelectedAlgorithm()}`);
+    const results = await response.json();
+    spinner.style.visibility = 'hidden';
+
+    const original_query = results.original_query;
+    const corrected_query = results.corrected_query;
+    const docs = results.docs;
+
+    let spellCheckDiv = document.getElementById('spell-check-div');
+    if(original_query !== corrected_query) {
+      spellCheckDiv.innerHTML =
+      `
+      <h6>
+        Showing results for <span id='correct-query'>${corrected_query}</span></br>
+        <small>Search instead for
+          <a onclick='fetchNewsResults("${original_query}")'>
+            <span id='original-query'>${original_query}</span>
+          </a>
+        </small>
+      </h6>
+      `;
+    }
+
+    let newsArticlesList = document.getElementById('news-results');
+    let newsArticleListInnerHTML = '';
+    if(docs!==undefined && docs.length>0) {
+      docs.map(doc => {
+        newsArticleListInnerHTML += createNewsArticle(doc);
+      });
+    } else {
+      // newsArticleListInnerHTML = '<h2>No articles found</h2>'
+    }
+    newsArticlesList.innerHTML = newsArticleListInnerHTML;
+  }
 }

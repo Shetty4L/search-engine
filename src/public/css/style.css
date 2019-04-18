@@ -7,6 +7,10 @@ ul#algorithm-selector {
     margin-top: 15px;
 }
 
+a {
+    cursor: pointer
+}
+
 body {
     min-height: 100%;
     position: relative;
@@ -45,4 +49,24 @@ a > h5 {
 
 a > small {
     color: #42783c
+}
+
+ul#autocomplete-list {
+    position: absolute;
+    z-index: 1000;
+    width: 96%;
+}
+
+span.spinner-border {
+    visibility: hidden;
+    margin-left: -25px;
+}
+
+h6  span {
+    color: #2230ab;
+}
+
+h6 > span#correct-query {
+    font-weight: bold;
+    font-style: italic;
 }
