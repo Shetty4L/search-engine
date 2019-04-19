@@ -81,7 +81,7 @@ exports.processSolrSearchResults = async (docs, query) => {
       url: url[0],
       id: id[0],
       description: description[0],
-      snippet: (snippet.length>0 ? snippet : description)
+      snippet: (snippet.length>0 ? snippet : description[0])
     }
   }));
 };
@@ -146,16 +146,23 @@ const max = (candidates) => {
 exports.generateSnippet = (sentences, query) => {
   const processExtractedSnippet = (snippet, query) => {
     const timestampPattern = /[0-9]{1,2}\.[0-9]{2}(a|p)m [A-Z]{3} [0-9]{2}:[0-9]{2}/;
-    snippet = snippet.replace(timestampPattern, '');
+    snippet = snippet.replace(timestampPattern, '').trim();
     const queryPosition = snippet.toLowerCase().indexOf(query);
     if(snippet.length > 160) {
-      if(queryPosition+snippet.length <= 160) {
-        return snippet.substring(0, 160) + '...';
-      } else {
-        const extractedSnippet = snippet.substring(queryPosition-80, queryPosition+80);
+      if(queryPosition+query.length < 160) {
+        const extractedSnippet = snippet.substring(0, 160);
         const extractedSnippetArr = extractedSnippet.split(' ');
-        const finalSnippetText =  extractedSnippetArr.slice(1,extractedSnippetArr.length-1).join(' ');
-        return `... ${finalSnippetText} ...`;
+        const finalSnippetText =  extractedSnippetArr.slice(0,extractedSnippetArr.length-1).join(' ');
+        return `${finalSnippetText} ...`;
+      } else {
+        const extractedSnippet = snippet.substring(queryPosition-80, queryPosition+query.length+80);
+        const extractedSnippetArr = extractedSnippet.split(' ');
+        const finalSnippetText =  extractedSnippetArr.slice(1,extractedSnippetArr.length).join(' ');
+        return (
+          finalSnippetText[finalSnippetText.length-1] === '.' ?
+          `... ${finalSnippetText}` :
+          `... ${finalSnippetText} ...`
+        );
       }
     }
     return snippet;
