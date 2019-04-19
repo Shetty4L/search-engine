@@ -40,7 +40,8 @@ document.forms.searchQueryForm.addEventListener('change', (event) => {
 document.forms.searchQueryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const query = document.getElementById('searchbar').value;
-  fetchNewsResults(query);
+  await fetchNewsResults(query);
+  document.getElementById('autocomplete-list').innerHTML = '';
 });
 
 document.addEventListener('click', (element) => {
@@ -74,7 +75,7 @@ function createNewsArticle(doc) {
               ID: <small class="text-muted">${doc.id}</small>
           </div>
       </div>
-      <p class="lead">${doc.description}</p>
+      <p class="lead">${doc.snippet}</p>
   </div>
   `;
   return newsArticleComponentString;
@@ -90,14 +91,16 @@ function createSuggestionItem(suggestion, prefix) {
   return suggestionItem;
 }
 
-async function fetchNewsResults(searchQuery) {
+async function fetchNewsResults(searchQuery, spellCheck = true) {
   if(searchQuery!==null && searchQuery!==undefined && searchQuery.length>0) {
     searchQuery = searchQuery.toLowerCase();
 
     let spinner = document.getElementsByClassName('spinner-border')[0];
 
     spinner.style.visibility = 'visible';
-    const response = await fetch(`/search?q=${searchQuery}&algorithm=${getSelectedAlgorithm()}`);
+    const url =
+      `/search?q=${searchQuery}&algorithm=${getSelectedAlgorithm()}&spellCheck=${spellCheck}`;
+    const response = await fetch(url);
     const results = await response.json();
     spinner.style.visibility = 'hidden';
 
@@ -112,7 +115,7 @@ async function fetchNewsResults(searchQuery) {
       <h6>
         Showing results for <span id='correct-query'>${corrected_query}</span></br>
         <small>Search instead for
-          <a onclick='fetchNewsResults("${original_query}")'>
+          <a onclick='fetchNewsResults("${original_query}", false)'>
             <span id='original-query'>${original_query}</span>
           </a>
         </small>
@@ -127,7 +130,12 @@ async function fetchNewsResults(searchQuery) {
         newsArticleListInnerHTML += createNewsArticle(doc);
       });
     } else {
-      // newsArticleListInnerHTML = '<h2>No articles found</h2>'
+      newsArticleListInnerHTML =
+        `
+          <div class="alert alert-dark" role="alert">
+            No articles found
+          </div>
+        `;
     }
     newsArticlesList.innerHTML = newsArticleListInnerHTML;
   }
