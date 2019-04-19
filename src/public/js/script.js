@@ -39,8 +39,6 @@ document.forms.searchQueryForm.addEventListener('change', (event) => {
 
 document.forms.searchQueryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  let spellCheckDiv = document.getElementById('spell-check-div');
-  spellCheckDiv.innerHTML = '';
   const query = document.getElementById('searchbar').value;
   await fetchNewsResults(query);
   document.getElementById('autocomplete-list').innerHTML = '';
@@ -120,6 +118,7 @@ async function fetchNewsResults(searchQuery, spellCheck = true) {
     const docs = results.docs;
 
     let spellCheckDiv = document.getElementById('spell-check-div');
+    spellCheckDiv.innerHTML = '';
     if(original_query !== corrected_query) {
       spellCheckDiv.innerHTML =
       `
