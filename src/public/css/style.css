@@ -51,10 +51,14 @@ a > small {
     color: #42783c
 }
 
+div#input-div {
+    position: relative;
+}
+
 ul#autocomplete-list {
     position: absolute;
     z-index: 1000;
-    width: 96%;
+    width: 100%;
 }
 
 span.spinner-border {
