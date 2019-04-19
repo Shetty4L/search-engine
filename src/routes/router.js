@@ -2,21 +2,26 @@ const utils = require('../utils');
 
 module.exports = {
   search: async (req, res) => {
-    if(Object.keys(req.query).length!==2 || !utils.isValidQuery(req.query.q)) {
+    if(Object.keys(req.query).length<3 || !utils.isValidQuery(req.query.q)) {
       res.status(404).send({
-        error: '2 query parameters are required'
+        error: '3 query parameters are required'
       });
       return;
     }
 
     const query = utils.sanitizeSearchQuery(req.query.q);
-    const correctedQuery = query.split(' ').map(term => utils.correctSpelling(term)).join(' ');
+    const spellCheck = (req.query.spellCheck==='true' ? true : false);
+    const correctedQuery = (
+      spellCheck ?
+      query.split(' ').map(term => utils.correctSpelling(term)).join(' ') :
+      query
+    );
     const algorithm = req.query.algorithm;
 
     const solrQuery = `q=${correctedQuery}&sort=${utils.getSolrSortQueryValue(algorithm)}`;
     try {
       const result = await utils.querySolr('select', solrQuery);
-      const docs = await utils.processSolrSearchResults(result.response.docs, query);
+      const docs = await utils.processSolrSearchResults(result.response.docs, correctedQuery);
 
       const responseObj = {
         original_query: query,
