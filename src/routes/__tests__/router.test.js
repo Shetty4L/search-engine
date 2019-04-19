@@ -259,47 +259,49 @@ describe('search route', () => {
 });
 
 describe('suggest route', () => {
-  const makeRequest = async (query) => {
-    const options = {
-      uri: 'http://localhost:3000/suggest',
-      qs: {
-        q: query
-      },
-      resolveWithFullResponse: true
-    };
-    try {
-      const response = await request.get(options);
-      return response;
-    } catch(err) {
-      return err;
-    }
-  };
-
-  describe('when not stubbed', () => {
-    let res = null;
-
-    afterEach(() => {
-      res = null;
-    });
-
-    it('should return a status code of 404 for invalid query', async () => {
-      try {
-        res = await makeRequest(null);
-      } catch(err) {}
-      expect(res.statusCode).toEqual(404);
-    });
-
-    it('returns a list of suggestions for an input query', async () => {
-      try {
-        res = await makeRequest('calif');
-      } catch(err) {}
-
-      expect(res.statusCode).toEqual(200);
-      expect(JSON.parse(res.body)).toHaveProperty('suggestions');
-      expect(JSON.parse(res.body).suggestions).toHaveLength(5);
-      expect(JSON.parse(res.body).suggestions).toEqual([
-        'calif', 'california', 'california’s', 'cliff', 'clifford'
-      ]);
-    });
-  })
+  // // ----------------------------------------------------------------------------- //
+  // const makeRequest = async (query) => {
+  //   const options = {
+  //     uri: 'http://localhost:3000/suggest',
+  //     qs: {
+  //       q: query
+  //     },
+  //     resolveWithFullResponse: true
+  //   };
+  //   try {
+  //     const response = await request.get(options);
+  //     return response;
+  //   } catch(err) {
+  //     return err;
+  //   }
+  // };
+  //
+  // describe('when not stubbed', () => {
+  //   let res = null;
+  //
+  //   afterEach(() => {
+  //     res = null;
+  //   });
+  //
+  //   it('should return a status code of 404 for invalid query', async () => {
+  //     try {
+  //       res = await makeRequest(null);
+  //     } catch(err) {}
+  //     expect(res.statusCode).toEqual(404);
+  //   });
+  //
+  //   it('returns a list of suggestions for an input query', async () => {
+  //     try {
+  //       res = await makeRequest('calif');
+  //     } catch(err) {}
+  //
+  //     expect(res.statusCode).toEqual(200);
+  //     expect(JSON.parse(res.body)).toHaveProperty('suggestions');
+  //     expect(JSON.parse(res.body).suggestions).toHaveLength(5);
+  //     expect(JSON.parse(res.body).suggestions).toEqual([
+  //       'calif', 'california', 'california’s', 'cliff', 'clifford'
+  //     ]);
+  //   });
+  // });
+  // // ----------------------------------------------------------------------------- //
 })
