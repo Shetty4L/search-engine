@@ -39,6 +39,8 @@ document.forms.searchQueryForm.addEventListener('change', (event) => {
 
 document.forms.searchQueryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  let spellCheckDiv = document.getElementById('spell-check-div');
+  spellCheckDiv.innerHTML = '';
   const query = document.getElementById('searchbar').value;
   await fetchNewsResults(query);
   document.getElementById('autocomplete-list').innerHTML = '';
@@ -60,7 +62,16 @@ function getSelectedAlgorithm() {
   return null;
 }
 
-function createNewsArticle(doc) {
+function createNewsArticle(doc, searchQuery) {
+  let snippet = doc.snippet;
+  searchQuery.split(' ').forEach(query => {
+    const regEx = new RegExp(query, "ig");
+    if(snippet.match(regEx)!==null) {
+      const emphasizedQueryTerm = `<strong>${snippet.match(regEx)[0]}</strong>`;
+      snippet = snippet.replace(regEx, emphasizedQueryTerm);
+    }
+  });
+
   let newsArticleComponentString =
   `
   <div class="list-group-item flex-column align-items-start">
@@ -75,7 +86,7 @@ function createNewsArticle(doc) {
               ID: <small class="text-muted">${doc.id}</small>
           </div>
       </div>
-      <p class="lead">${doc.snippet}</p>
+      <p>${snippet}</p>
   </div>
   `;
   return newsArticleComponentString;
@@ -127,7 +138,7 @@ async function fetchNewsResults(searchQuery, spellCheck = true) {
     let newsArticleListInnerHTML = '';
     if(docs!==undefined && docs.length>0) {
       docs.map(doc => {
-        newsArticleListInnerHTML += createNewsArticle(doc);
+        newsArticleListInnerHTML += createNewsArticle(doc, corrected_query);
       });
     } else {
       newsArticleListInnerHTML =
