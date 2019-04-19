@@ -2,7 +2,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const request = require('request-promise-native');
-const h2p = require('html2plaintext');
+const htmlParser = require('fast-html-parser');
 const cheerio = require('cheerio');
 const nWords = require('./spell_model.json');
 const client = {
@@ -32,13 +32,20 @@ exports.getJSONFromCSVFile = async (fname) => {
   });
 };
 
-exports.getTextFromUrl = async (fname) => {
+exports.getHTMLDOMFromUrl = async (fname) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path.resolve(__dirname, fname), (err, data) => {
       if (err) throw reject(err);
-      resolve(h2p(cheerio.load(data).html()));
+      resolve(htmlParser.parse(cheerio.load(data).html()));
     });
   });
+}
+
+exports.getSentencesFromDOM = (DOM) => {
+  const processHTML = (text) => text.trim();
+  const p = DOM.querySelectorAll('p').map(element => processHTML(element.structuredText));
+  const li = DOM.querySelectorAll('li').map(element => processHTML(element.structuredText));
+  return p.concat(li);
 }
 
 exports.querySolr = async (route, query) => {
@@ -62,11 +69,12 @@ exports.processSolrSearchResults = async (docs, query) => {
     const description = this.isValidQuery(doc.og_description) ? doc.og_description : [''];
     const id = this.isValidQuery(doc.id) ? [last(doc.id.split('/'))] : ['N/A'];
 
-    let text;
+    let DOM;
     if(urlTextMap.hasOwnProperty(url[0])) {
-      text = urlTextMap[url[0]];
-    } else text = await this.getTextFromUrl(`./data/${id[0]}`);
-    const snippet = this.generateSnippet(text, query);
+      DOM = urlTextMap[url[0]];
+    } else DOM = await this.getHTMLDOMFromUrl(`./data/${id[0]}`);
+    const sentences = this.getSentencesFromDOM(DOM);
+    const snippet = this.generateSnippet(sentences, query);
 
     return {
       title: title[0],
@@ -135,45 +143,56 @@ const max = (candidates) => {
 	return Math.max.apply(null, arr);
 }
 
-exports.generateSnippet = (text, query) => {
-  const processExtractedString = (results, query) => {
+exports.generateSnippet = (sentences, query) => {
+  const processExtractedSnippet = (snippet, query) => {
+    const timestampPattern = /[0-9]{1,2}\.[0-9]{2}(a|p)m [A-Z]{3} [0-9]{2}:[0-9]{2}/;
+    snippet = snippet.replace(timestampPattern, '');
+    const queryPosition = snippet.toLowerCase().indexOf(query);
+    if(snippet.length > 160) {
+      if(queryPosition+snippet.length <= 160) {
+        return snippet.substring(0, 160) + '...';
+      } else {
+        const extractedSnippet = snippet.substring(queryPosition-80, queryPosition+80);
+        const extractedSnippetArr = extractedSnippet.split(' ');
+        const finalSnippetText =  extractedSnippetArr.slice(1,extractedSnippetArr.length-1).join(' ');
+        return `... ${finalSnippetText} ...`;
+      }
+    }
+    return snippet;
+  };
+
+  const getSnippetFromCandidates = (results, query) => {
     for(let result of results) {
-      result = result.split(/[.?|]/).filter(phrase => phrase.toLowerCase().indexOf(query)!==-1);
-      if(result!==undefined & result.length>0) {
-        result = result[0].split(/\s\s+/).filter(phrase => phrase.toLowerCase().indexOf(query)!==-1);
-        result = result[0].replace(/[0-9]{2}[a|p]m [A-Z]{3} [0-9]{2}:[0-9]{2}/g, '').trim();
-        return (
-          result.length > 160 ? result.substring(0,160).trim() + ' ...' : result
-        );
+      if(result!==undefined && result.length>0 && result.toLowerCase().indexOf(query)!==-1) {
+        return processExtractedSnippet(result, query);
       }
     }
     return '';
   }
 
   const queryTerms = query.split(' ');
-  const sentences = text.match(/[^.?!]+[.!?]+[\])'"`’”]*/g);
 
   if(queryTerms.length===1) {
     const result = sentences.filter(sentence => sentence.toLowerCase().indexOf(query)!==-1);
-    return processExtractedString(result, query);
+    return getSnippetFromCandidates(result, query);
   } else {
     const result1 = sentences.filter(sentence => sentence.toLowerCase().indexOf(query)!==-1);
     if(result1!==undefined && result1.length>0) {
-      return processExtractedString(result1, query);
+      return getSnippetFromCandidates(result1, query);
     }
 
     const result2 = sentences.filter(sentence => {
       return queryTerms.every(term => sentence.toLowerCase().indexOf(term)!==-1)
     });
     if(result2!==undefined && result2.length>0) {
-      return processExtractedString(result2, queryTerms[0]);
+      return getSnippetFromCandidates(result2, queryTerms[0]);
     }
 
     const result3 = sentences.filter(sentence => {
       return queryTerms.some(term => sentence.toLowerCase().indexOf(term)!==-1)
     });
     if(result3!==undefined && result3.length>0) {
-      return processExtractedString(result3, queryTerms[0]);
+      return getSnippetFromCandidates(result3, queryTerms[0]);
     }
 
     return '';
